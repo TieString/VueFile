@@ -1,0 +1,56 @@
+{
+    "name": "demo",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "cross-env NODE_ENV=production vue-cli-service build",
+        "lint": "vue-cli-service lint",
+        "test:e2e": "vue-cli-service test:e2e",
+        "postinstall": "npm run build",
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "@mdi/font": "^3.6.95",
+        "axios": "^1.2.1",
+        "core-js": "^2.6.5",
+        "cross-env": "^5.2.1",
+        "express": "^4.17.1",
+        "register-service-worker": "^1.6.2",
+        "roboto-fontface": "*",
+        "serve-static": "^1.14.1",
+        "string-replace-loader": "^2.2.0",
+        "vue": "^2.6.10",
+        "vue-router": "^3.0.3",
+        "vuetify": "^2.0.0"
+    },
+    "devDependencies": {
+        "@vue/cli-plugin-babel": "^3.11.0",
+        "@vue/cli-plugin-e2e-nightwatch": "^3.11.0",
+        "@vue/cli-plugin-eslint": "^3.11.0",
+        "@vue/cli-plugin-pwa": "^3.11.0",
+        "@vue/cli-service": "^3.11.0",
+        "@vue/eslint-config-standard": "^4.0.0",
+        "babel-eslint": "^10.0.1",
+        "eslint": "^5.16.0",
+        "eslint-plugin-vue": "^5.0.0",
+        "husky": "^3.0.5",
+        "lint-staged": "^8.2.1",
+        "node-sass": "^6.0.0",
+        "prettier": "^1.18.2",
+        "sass": "^1.17.4",
+        "sass-loader": "^7.1.0",
+        "vue-cli-plugin-vuetify": "^0.6.3",
+        "vue-template-compiler": "^2.6.10",
+        "vuetify-loader": "^1.2.2"
+    },
+    "gitHooks": {
+        "pre-commit": "lint-staged"
+    },
+    "lint-staged": {
+        "*.{js,vue}": [
+            "vue-cli-service lint",
+            "git add"
+        ]
+    }
+}
