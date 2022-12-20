@@ -3,23 +3,36 @@
         <v-card flat light class="mx-auto" :loading="loading">
             <v-card-text class="py-3 text-center">
                 <div>
-                    <span class="grey--text">Upload to:</span>
+                    <span class="grey--text">路径：</span>
                     <v-chip color="info" class="mx-1">{{ storage }}</v-chip>
                     <v-chip>{{ path }}</v-chip>
                 </div>
-                <div v-if="maxUploadFilesCount">
-                    <span class="grey--text">Max files count: {{ maxUploadFilesCount }}</span>
-                </div>
-                <div v-if="maxUploadFileSize">
-                    <span class="grey--text">Max file size: {{ formatBytes(maxUploadFileSize) }}</span>
+                <div v-if="maxUploadFilesCount || maxUploadFileSize">
+                    <span class="grey--text"
+                        >数量限制：{{ maxUploadFilesCount }}</span
+                    >
+                    &nbsp;&nbsp;
+                    <span class="grey--text"
+                        >体积限制：{{ formatBytes(maxUploadFileSize) }}</span
+                    >
                 </div>
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-text v-if="listItems.length" class="pa-0 files-list-wrapper">
+            <v-card-text
+                v-if="listItems.length"
+                class="pa-0 files-list-wrapper"
+            >
                 <v-list two-line v-if="listItems.length">
-                    <v-list-item v-for="(file, index) in listItems" :key="index" link>
+                    <v-list-item
+                        v-for="(file, index) in listItems"
+                        :key="index"
+                        link
+                    >
                         <v-list-item-avatar>
-                            <v-img v-if="file.preview" :src="file.preview"></v-img>
+                            <v-img
+                                v-if="file.preview"
+                                :src="file.preview"
+                            ></v-img>
                             <v-icon
                                 v-else
                                 v-text="icons[file.extension] || 'mdi-file'"
@@ -28,12 +41,19 @@
                             ></v-icon>
                         </v-list-item-avatar>
                         <v-list-item-content>
-                            <v-list-item-title v-text="file.name"></v-list-item-title>
-                            <v-list-item-subtitle>{{ formatBytes(file.size) }} - {{ file.type }}</v-list-item-subtitle>
+                            <v-list-item-title
+                                v-text="file.name"
+                            ></v-list-item-title>
+                            <v-list-item-subtitle
+                                >{{ formatBytes(file.size) }} -
+                                {{ file.type }}</v-list-item-subtitle
+                            >
                         </v-list-item-content>
                         <v-list-item-action>
                             <v-btn icon @click="remove(index)">
-                                <v-icon color="grey lighten-1">mdi-close</v-icon>
+                                <v-icon color="grey lighten-1"
+                                    >mdi-close</v-icon
+                                >
                             </v-btn>
                         </v-list-item-action>
                     </v-list-item>
@@ -47,9 +67,15 @@
             <v-divider></v-divider>
             <v-toolbar dense flat>
                 <div class="grow"></div>
-                <v-btn text @click="cancel" class="mx-1">Cancel</v-btn>
-                <v-btn depressed color="warning" @click="clear" class="mx-1" :disabled="!files">
-                    <v-icon>mdi-close</v-icon>Clear
+                <v-btn text @click="cancel" class="mx-1">取消</v-btn>
+                <v-btn
+                    depressed
+                    color="warning"
+                    @click="clear"
+                    class="mx-1"
+                    :disabled="!files"
+                >
+                    <v-icon>mdi-close</v-icon>清空
                 </v-btn>
                 <v-btn
                     :disabled="listItems.length >= maxUploadFilesCount"
@@ -58,7 +84,7 @@
                     @click="$refs.inputUpload.click()"
                     class="mx-1"
                 >
-                    <v-icon left>mdi-plus-circle</v-icon>Add Files
+                    <v-icon left>mdi-plus-circle</v-icon>添加
                     <input
                         v-show="false"
                         ref="inputUpload"
@@ -67,13 +93,30 @@
                         @change="add"
                     />
                 </v-btn>
-                <v-btn depressed color="success" @click="upload" class="ml-1" :disabled="!files">
-                    Upload
+                <v-btn
+                    depressed
+                    color="success"
+                    @click="upload"
+                    class="ml-1"
+                    :disabled="!files"
+                >
+                    上传
                     <v-icon right>mdi-upload-outline</v-icon>
                 </v-btn>
             </v-toolbar>
-            <v-overlay :value="uploading" :absolute="true" color="white" opacity="0.9">
-                <v-progress-linear v-model="progress" height="25" striped rounded reactive>
+            <v-overlay
+                :value="uploading"
+                :absolute="true"
+                color="white"
+                opacity="0.9"
+            >
+                <v-progress-linear
+                    v-model="progress"
+                    height="25"
+                    striped
+                    rounded
+                    reactive
+                >
                     <strong>{{ Math.ceil(progress) }}%</strong>
                 </v-progress-linear>
             </v-overlay>
@@ -97,7 +140,7 @@ export default {
         maxUploadFilesCount: { type: Number, default: 0 },
         maxUploadFileSize: { type: Number, default: 0 }
     },
-    data () {
+    data() {
         return {
             loading: false,
             uploading: false,
@@ -108,7 +151,7 @@ export default {
     methods: {
         formatBytes,
 
-        async filesMap (files) {
+        async filesMap(files) {
             let promises = Array.from(files).map(file => {
                 let result = {
                     name: file.name,
@@ -121,7 +164,7 @@ export default {
                         return resolve(result);
                     }
                     var reader = new FileReader();
-                    reader.onload = function (e) {
+                    reader.onload = function(e) {
                         result.preview = e.target.result;
                         resolve(result);
                     };
@@ -132,27 +175,27 @@ export default {
             return await Promise.all(promises);
         },
 
-        async add (event) {
+        async add(event) {
             let files = Array.from(event.target.files);
             this.$emit("add-files", files);
             this.$refs.inputUpload.value = "";
         },
 
-        remove (index) {
+        remove(index) {
             this.$emit("remove-file", index);
             this.listItems.splice(index, 1);
         },
 
-        clear () {
+        clear() {
             this.$emit("clear-files");
             this.listItems = [];
         },
 
-        cancel () {
+        cancel() {
             this.$emit("cancel");
         },
 
-        async upload () {
+        async upload() {
             let formData = new FormData();
 
             // files
@@ -184,7 +227,7 @@ export default {
         files: {
             deep: true,
             immediate: true,
-            async handler () {
+            async handler() {
                 this.loading = true;
                 this.listItems = await this.filesMap(this.files);
                 this.loading = false;

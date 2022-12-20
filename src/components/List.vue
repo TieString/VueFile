@@ -103,7 +103,7 @@
                 solo
                 flat
                 hide-details
-                label="Filter"
+                label="筛选"
                 v-model="filter"
                 prepend-inner-icon="mdi-filter-outline"
                 class="ml-n3"
@@ -186,10 +186,9 @@ export default {
         },
         async deleteItem (item) {
             let confirmed = await this.$refs.confirm.open(
-                "Delete",
-                `Are you sure<br>you want to delete this ${
-                    item.type === "dir" ? "folder" : "file"
-                }?<br><em>${item.basename}</em>`
+                "删除文件",
+                `是否删除以下
+                 ${item.type === "dir" ? "文件夹" : "文件"}?<br><em>${item.basename}</em>`
             );
 
             if (confirmed) {

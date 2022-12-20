@@ -40,7 +40,7 @@
                 solo
                 flat
                 hide-details
-                label="Filter"
+                label="筛选"
                 v-model="filter"
                 prepend-inner-icon="mdi-filter-outline"
                 class="ml-n3"
@@ -51,7 +51,7 @@
                         <v-icon>mdi-collapse-all-outline</v-icon>
                     </v-btn>
                 </template>
-                <span>Collapse All</span>
+                <span>折叠所有文件夹</span>
             </v-tooltip>
         </v-toolbar>
     </v-card>
@@ -86,7 +86,7 @@ export default {
                     {
                         type: "dir",
                         path: "/",
-                        basename: "root",
+                        basename: "根",
                         extension: "",
                         name: "root",
                         children: []
