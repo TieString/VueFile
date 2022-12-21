@@ -8,52 +8,28 @@
                     <v-chip>{{ path }}</v-chip>
                 </div>
                 <div v-if="maxUploadFilesCount || maxUploadFileSize">
-                    <span class="grey--text"
-                        >数量限制：{{ maxUploadFilesCount }}</span
-                    >
+                    <span class="grey--text">数量限制：{{ maxUploadFilesCount }}</span>
                     &nbsp;&nbsp;
-                    <span class="grey--text"
-                        >体积限制：{{ formatBytes(maxUploadFileSize) }}</span
-                    >
+                    <span class="grey--text">体积限制：{{ formatBytes(maxUploadFileSize) }}</span>
                 </div>
             </v-card-text>
             <v-divider></v-divider>
-            <v-card-text
-                v-if="listItems.length"
-                class="pa-0 files-list-wrapper"
-            >
+            <v-card-text v-if="listItems.length" class="pa-0 files-list-wrapper">
                 <v-list two-line v-if="listItems.length">
-                    <v-list-item
-                        v-for="(file, index) in listItems"
-                        :key="index"
-                        link
-                    >
+                    <v-list-item v-for="(file, index) in listItems" :key="index" link>
                         <v-list-item-avatar>
-                            <v-img
-                                v-if="file.preview"
-                                :src="file.preview"
-                            ></v-img>
-                            <v-icon
-                                v-else
-                                v-text="icons[file.extension] || 'mdi-file'"
-                                class="mdi-36px"
-                                color="grey lighten-1"
-                            ></v-icon>
+                            <v-img v-if="file.preview" :src="file.preview"></v-img>
+                            <v-icon v-else v-text="icons[file.extension] || 'mdi-file'" class="mdi-36px"
+                                color="grey lighten-1"></v-icon>
                         </v-list-item-avatar>
                         <v-list-item-content>
-                            <v-list-item-title
-                                v-text="file.name"
-                            ></v-list-item-title>
-                            <v-list-item-subtitle
-                                >{{ formatBytes(file.size) }} -
-                                {{ file.type }}</v-list-item-subtitle
-                            >
+                            <v-list-item-title v-text="file.name"></v-list-item-title>
+                            <v-list-item-subtitle>{{ formatBytes(file.size) }} -
+                                {{ file.type }}</v-list-item-subtitle>
                         </v-list-item-content>
                         <v-list-item-action>
                             <v-btn icon @click="remove(index)">
-                                <v-icon color="grey lighten-1"
-                                    >mdi-close</v-icon
-                                >
+                                <v-icon color="grey lighten-1">mdi-close</v-icon>
                             </v-btn>
                         </v-list-item-action>
                     </v-list-item>
@@ -68,55 +44,21 @@
             <v-toolbar dense flat>
                 <div class="grow"></div>
                 <v-btn text @click="cancel" class="mx-1">取消</v-btn>
-                <v-btn
-                    depressed
-                    color="warning"
-                    @click="clear"
-                    class="mx-1"
-                    :disabled="!files"
-                >
+                <v-btn depressed color="warning" @click="clear" class="mx-1" :disabled="!files">
                     <v-icon>mdi-close</v-icon>清空
                 </v-btn>
-                <v-btn
-                    :disabled="listItems.length >= maxUploadFilesCount"
-                    depressed
-                    color="info"
-                    @click="$refs.inputUpload.click()"
-                    class="mx-1"
-                >
+                <v-btn :disabled="listItems.length >= maxUploadFilesCount" depressed color="info"
+                    @click="$refs.inputUpload.click()" class="mx-1">
                     <v-icon left>mdi-plus-circle</v-icon>添加
-                    <input
-                        v-show="false"
-                        ref="inputUpload"
-                        type="file"
-                        multiple
-                        @change="add"
-                    />
+                    <input v-show="false" ref="inputUpload" type="file" multiple @change="add" />
                 </v-btn>
-                <v-btn
-                    depressed
-                    color="success"
-                    @click="upload"
-                    class="ml-1"
-                    :disabled="!files"
-                >
+                <v-btn depressed color="success" @click="upload" class="ml-1" :disabled="!files">
                     上传
                     <v-icon right>mdi-upload-outline</v-icon>
                 </v-btn>
             </v-toolbar>
-            <v-overlay
-                :value="uploading"
-                :absolute="true"
-                color="white"
-                opacity="0.9"
-            >
-                <v-progress-linear
-                    v-model="progress"
-                    height="25"
-                    striped
-                    rounded
-                    reactive
-                >
+            <v-overlay :value="uploading" :absolute="true" color="white" opacity="0.9">
+                <v-progress-linear v-model="progress" height="25" striped rounded reactive>
                     <strong>{{ Math.ceil(progress) }}%</strong>
                 </v-progress-linear>
             </v-overlay>
@@ -125,9 +67,9 @@
 </template>
 
 <script>
-import { formatBytes } from "../plugins/util";
+import { formatBytes } from '../plugins/util'
 
-const imageMimeTypes = ["image/png", "image/jpeg"];
+const imageMimeTypes = ['image/png', 'image/jpeg']
 
 export default {
     props: {
@@ -146,7 +88,7 @@ export default {
             uploading: false,
             progress: 0,
             listItems: []
-        };
+        }
     },
     methods: {
         formatBytes,
@@ -157,70 +99,72 @@ export default {
                     name: file.name,
                     type: file.type,
                     size: file.size,
-                    extension: file.name.split(".").pop()
-                };
+                    extension: file.name.split('.').pop()
+                }
                 return new Promise(resolve => {
                     if (!imageMimeTypes.includes(result.type)) {
-                        return resolve(result);
+                        return resolve(result)
                     }
-                    var reader = new FileReader();
-                    reader.onload = function(e) {
-                        result.preview = e.target.result;
-                        resolve(result);
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
+                    var reader = new FileReader()
+                    reader.onload = function (e) {
+                        result.preview = e.target.result
+                        resolve(result)
+                    }
+                    reader.readAsDataURL(file)
+                })
+            })
 
-            return await Promise.all(promises);
+            // eslint-disable-next-line no-return-await
+            return await Promise.all(promises)
         },
 
         async add(event) {
-            let files = Array.from(event.target.files);
-            this.$emit("add-files", files);
-            this.$refs.inputUpload.value = "";
+            let files = Array.from(event.target.files)
+            this.$emit('add-files', files)
+            this.$refs.inputUpload.value = ''
         },
 
         remove(index) {
-            this.$emit("remove-file", index);
-            this.listItems.splice(index, 1);
+            this.$emit('remove-file', index)
+            this.listItems.splice(index, 1)
         },
 
         clear() {
-            this.$emit("clear-files");
-            this.listItems = [];
+            this.$emit('clear-files')
+            this.listItems = []
         },
 
         cancel() {
-            this.$emit("cancel");
+            this.$emit('cancel')
         },
 
         async upload() {
-            let formData = new FormData();
+            let formData = new FormData()
 
             // files
             for (let file of this.files) {
-                formData.append("files", file, file.name);
+                formData.append('files', file, file.name)
             }
 
             let url = this.endpoint.url
-                .replace(new RegExp("{storage}", "g"), this.storage)
-                .replace(new RegExp("{path}", "g"), this.path);
+                .replace(new RegExp('{storage}', 'g'), this.storage)
+                .replace(new RegExp('{path}', 'g'), this.path)
 
             let config = {
                 url,
-                method: this.endpoint.method || "post",
+                method: this.endpoint.method || 'post',
                 data: formData,
                 onUploadProgress: progressEvent => {
                     this.progress =
-                        (progressEvent.loaded / progressEvent.total) * 100;
+                        (progressEvent.loaded / progressEvent.total) * 100
                 }
-            };
+            }
 
-            this.uploading = true;
-            let response = await this.axios.request(config);
-            this.uploading = false;
-            this.$emit("uploaded");
+            this.uploading = true
+            let response = await this.axios.request(config)
+            console.log(response)
+            this.uploading = false
+            this.$emit('uploaded')
         }
     },
     watch: {
@@ -228,13 +172,13 @@ export default {
             deep: true,
             immediate: true,
             async handler() {
-                this.loading = true;
-                this.listItems = await this.filesMap(this.files);
-                this.loading = false;
+                this.loading = true
+                this.listItems = await this.filesMap(this.files)
+                this.loading = false
             }
         }
     }
-};
+}
 </script>
 
 <style lang="scss" scoped>

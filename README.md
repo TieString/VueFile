@@ -1,4 +1,4 @@
-# Vuetify File Browser Demo
+# 文件管理系统
 
 Demo of [Vuetify File Browser](https://github.com/semeniuk/vuetify-file-browser)
 

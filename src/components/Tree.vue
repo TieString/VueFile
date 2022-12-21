@@ -1,6 +1,12 @@
 <template>
-    <v-card flat tile width="250" min-height="380" class="d-flex flex-column folders-tree-card">
-        <div class="grow scroll-x">
+    <v-card
+        flat
+        tile
+        width="250"
+        min-height="380"
+        class="d-flex flex-column folders-tree-card"
+    >
+        <div class="grow scroll-x tree-container">
             <v-treeview
                 :open="open"
                 :active="active"
@@ -16,25 +22,31 @@
                 class="folders-tree"
             >
                 <template v-slot:prepend="{ item, open }">
-                    <v-icon
-                        v-if="item.type === 'dir'"
-                    >{{ open ? 'mdi-folder-open-outline' : 'mdi-folder-outline' }}</v-icon>
-                    <v-icon v-else>{{ icons[item.extension.toLowerCase()] || icons['other'] }}</v-icon>
+                    <!-- 文件夹 -->
+                    <v-icon v-if="item.type === 'dir'">{{
+                        open ? "mdi-folder-open-outline" : "mdi-folder-outline"
+                    }}</v-icon>
+                    <!-- 文件 -->
+                    <v-icon v-else>{{
+                        icons[item.extension.toLowerCase()] || icons["other"]
+                    }}</v-icon>
                 </template>
                 <template v-slot:label="{ item }">
-                    {{item.basename}}
+                    {{ item.basename }}
                     <v-btn
                         icon
                         v-if="item.type === 'dir'"
                         @click.stop="readFolder(item)"
                         class="ml-1"
                     >
-                        <v-icon class="pa-0 mdi-18px" color="grey lighten-1">mdi-refresh</v-icon>
+                        <v-icon class="pa-0 mdi-18px" color="grey lighten-1"
+                            >mdi-refresh</v-icon
+                        >
                     </v-btn>
                 </template>
             </v-treeview>
         </div>
-        <v-divider></v-divider>
+        <v-divider>分割线</v-divider>
         <v-toolbar dense flat class="shrink">
             <v-text-field
                 solo
@@ -67,107 +79,107 @@ export default {
         axios: Function,
         refreshPending: Boolean
     },
-    data () {
+    data() {
         return {
             open: [],
             active: [],
             items: [],
-            filter: ""
-        };
+            filter: ''
+        }
     },
     methods: {
-        init () {
-            this.open = [];
-            this.items = [];
+        init() {
+            this.open = []
+            this.items = []
             // set default files tree items (root item) in nextTick.
             // Otherwise this.open isn't cleared properly (due to syncing perhaps)
             setTimeout(() => {
                 this.items = [
                     {
-                        type: "dir",
-                        path: "/",
-                        basename: "根",
-                        extension: "",
-                        name: "root",
+                        type: 'dir',
+                        path: '/',
+                        basename: '文件',
+                        extension: '',
+                        name: 'root',
                         children: []
                     }
-                ];
-            }, 0);
-            if (this.path !== "") {
-                this.$emit("path-changed", "");
+                ]
+            }, 0)
+            if (this.path !== '') {
+                this.$emit('path-changed', '')
             }
         },
-        async readFolder (item) {
-            this.$emit("loading", true);
+        async readFolder(item) {
+            this.$emit('loading', true)
             let url = this.endpoints.list.url
-                .replace(new RegExp("{storage}", "g"), this.storage)
-                .replace(new RegExp("{path}", "g"), item.path);
+                .replace(new RegExp('{storage}', 'g'), this.storage)
+                .replace(new RegExp('{path}', 'g'), item.path)
 
             let config = {
                 url,
-                method: this.endpoints.list.method || "get"
-            };
+                method: this.endpoints.list.method || 'get'
+            }
 
-            let response = await this.axios.request(config);
+            let response = await this.axios.request(config)
 
             // eslint-disable-next-line require-atomic-updates
             item.children = response.data.map(item => {
-                if (item.type === "dir") {
-                    item.children = [];
+                if (item.type === 'dir') {
+                    item.children = []
                 }
-                return item;
-            });
+                return item
+            })
 
-            this.$emit("loading", false);
+            this.$emit('loading', false)
         },
-        activeChanged (active) {
-            this.active = active;
-            let path = "";
+        activeChanged(active) {
+            this.active = active
+            let path = ''
             if (active.length) {
-                path = active[0];
+                path = active[0]
             }
             if (this.path !== path) {
-                this.$emit("path-changed", path);
+                this.$emit('path-changed', path)
             }
         },
-        findItem (path) {
-            let stack = [];
-            stack.push(this.items[0]);
+        findItem(path) {
+            let stack = []
+            stack.push(this.items[0])
             while (stack.length > 0) {
-                let node = stack.pop();
+                let node = stack.pop()
                 if (node.path === path) {
-                    return node;
+                    return node
                 } else if (node.children && node.children.length) {
                     for (let i = 0; i < node.children.length; i++) {
-                        stack.push(node.children[i]);
+                        stack.push(node.children[i])
                     }
                 }
             }
-            return null;
+            return null
         }
     },
     watch: {
-        storage () {
-            this.init();
+        storage() {
+            this.init()
         },
-        path () {
-            this.active = [this.path];
+        path() {
+            this.active = [this.path]
             if (!this.open.includes(this.path)) {
-                this.open.push(this.path);
+                this.open.push(this.path)
             }
         },
-        async refreshPending () {
+        async refreshPending() {
             if (this.refreshPending) {
-                let item = this.findItem(this.path);
-                await this.readFolder(item);
-                this.$emit("refreshed");
+                let item = this.findItem(this.path)
+                await this.readFolder(item)
+                this.$emit('refreshed')
             }
         }
     },
-    created () {
-        this.init();
+    created() {
+        this.init()
     }
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -178,6 +190,10 @@ export default {
         overflow-x: auto;
     }
 
+    .tree-container {
+        margin-right: 1px;
+        border-right: 2px solid #e3e8eb;
+    }
     ::v-deep .folders-tree {
         width: fit-content;
         min-width: 250px;

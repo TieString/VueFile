@@ -44,8 +44,8 @@
                         <v-icon>mdi-arrow-up-bold-outline</v-icon>
                     </v-btn>
                 </template>
-                <span v-if="pathSegments.length === 1">Up to "root"</span>
-                <span v-else>Up to "{{pathSegments[pathSegments.length - 2].name}}"</span>
+                <span v-if="pathSegments.length === 1">返回根目录</span>
+                <span v-else>返回 "{{pathSegments[pathSegments.length - 2].name}}"</span>
             </v-tooltip>
             <v-menu
                 v-model="newFolderPopper"
@@ -94,71 +94,71 @@ export default {
     data () {
         return {
             newFolderPopper: false,
-            newFolderName: ""
-        };
+            newFolderName: ''
+        }
     },
     computed: {
         pathSegments () {
-            let path = "/";
-            let isFolder = this.path[this.path.length - 1] === "/";
-            let segments = this.path.split("/").filter(item => item);
+            let path = '/'
+            let isFolder = this.path[this.path.length - 1] === '/'
+            let segments = this.path.split('/').filter(item => item)
 
             segments = segments.map((item, index) => {
                 path +=
-                    item + (index < segments.length - 1 || isFolder ? "/" : "");
+                    item + (index < segments.length - 1 || isFolder ? '/' : '')
                 return {
                     name: item,
                     path
-                };
-            });
+                }
+            })
 
-            return segments;
+            return segments
         },
         storageObject () {
-            return this.storages.find(item => item.code === this.storage);
+            return this.storages.find(item => item.code === this.storage)
         }
     },
     methods: {
         changeStorage (code) {
             if (this.storage !== code) {
-                this.$emit("storage-changed", code);
-                this.$emit("path-changed", "");
+                this.$emit('storage-changed', code)
+                this.$emit('path-changed', '')
             }
         },
         changePath (path) {
-            this.$emit("path-changed", path);
+            this.$emit('path-changed', path)
         },
         goUp () {
-            let segments = this.pathSegments;
+            let segments = this.pathSegments
             let path =
                     segments.length === 1
-                        ? "/"
-                        : segments[segments.length - 2].path;
-            this.changePath(path);
+                        ? '/'
+                        : segments[segments.length - 2].path
+            this.changePath(path)
         },
         async addFiles (event) {
-            this.$emit("add-files", event.target.files);
-            this.$refs.inputUpload.value = "";
+            this.$emit('add-files', event.target.files)
+            this.$refs.inputUpload.value = ''
         },
         async mkdir () {
-            this.$emit("loading", true);
+            this.$emit('loading', true)
             let url = this.endpoints.mkdir.url
-                .replace(new RegExp("{storage}", "g"), this.storage)
-                .replace(new RegExp("{path}", "g"), this.path + this.newFolderName);
+                .replace(new RegExp('{storage}', 'g'), this.storage)
+                .replace(new RegExp('{path}', 'g'), this.path + this.newFolderName)
 
             let config = {
                 url,
-                method: this.endpoints.mkdir.method || "post"
-            };
+                method: this.endpoints.mkdir.method || 'post'
+            }
 
-            await this.axios.request(config);
-            this.$emit("folder-created", this.newFolderName);
-            this.newFolderPopper = false;
-            this.newFolderName = "";
-            this.$emit("loading", false);
+            await this.axios.request(config)
+            this.$emit('folder-created', this.newFolderName)
+            this.newFolderPopper = false
+            this.newFolderName = ''
+            this.$emit('loading', false)
         }
     }
-};
+}
 </script>
 
 <style lang="scss" scoped>
