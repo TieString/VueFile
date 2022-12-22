@@ -83,6 +83,7 @@
 <script>
 import { formatBytes } from '../plugins/util'
 import Confirm from './Confirm.vue'
+import { downloadFile, getFileName } from '../js/file'
 
 export default {
     props: {
@@ -182,11 +183,7 @@ export default {
             }
 
             await this.axios.request(config).then(response => {
-                let a = document.createElement('a')
-                a.href = window.URL.createObjectURL(new Blob([response.data]))
-                a.download = item.path
-                a.click()
-                a.remove()
+                downloadFile(response.data, getFileName(item.path))
             })
 
             this.$emit('file-download')
