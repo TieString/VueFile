@@ -1,3 +1,4 @@
+<!-- 主页面 -->
 <template>
     <div>
         <h1 class="text-center font-weight-light my-5">文件管理</h1>
@@ -14,11 +15,11 @@
 </template>
 
 <script>
-import FileBrowser from "../components/FileBrowser";
+import FileBrowser from '../components/FileBrowser'
 
 export default {
     components: {
         FileBrowser
     }
-};
+}
 </script>

@@ -1,62 +1,28 @@
+<!-- 文件浏览器 -->
 <template>
     <v-card class="mx-auto" :loading="loading > 0">
-        <toolbar
-            :path="path"
-            :storages="storagesArray"
-            :storage="activeStorage"
-            :endpoints="endpoints"
-            :axios="axiosInstance"
-            v-on:storage-changed="storageChanged"
-            v-on:path-changed="pathChanged"
-            v-on:add-files="addUploadingFiles"
-            v-on:folder-created="refreshPending = true"
-        ></toolbar>
+        <toolbar :path="path" :storages="storagesArray" :storage="activeStorage" :endpoints="endpoints"
+            :axios="axiosInstance" v-on:storage-changed="storageChanged" v-on:path-changed="pathChanged"
+            v-on:add-files="addUploadingFiles" v-on:folder-created="refreshPending = true"></toolbar>
         <v-row no-gutters>
             <v-col v-if="tree && $vuetify.breakpoint.smAndUp" sm="auto">
-                <tree
-                    :path="path"
-                    :storage="activeStorage"
-                    :icons="icons"
-                    :endpoints="endpoints"
-                    :axios="axiosInstance"
-                    :refreshPending="refreshPending"
-                    v-on:path-changed="pathChanged"
-                    v-on:loading="loadingChanged"
-                    v-on:refreshed="refreshPending = false"
-                ></tree>
+                <tree :path="path" :storage="activeStorage" :icons="icons" :endpoints="endpoints" :axios="axiosInstance"
+                    :refreshPending="refreshPending" v-on:path-changed="pathChanged" v-on:loading="loadingChanged"
+                    v-on:refreshed="refreshPending = false"></tree>
             </v-col>
             <v-divider v-if="tree" vertical></v-divider>
             <v-col>
-                <list
-                    :path="path"
-                    :storage="activeStorage"
-                    :icons="icons"
-                    :endpoints="endpoints"
-                    :axios="axiosInstance"
-                    :refreshPending="refreshPending"
-                    v-on:path-changed="pathChanged"
-                    v-on:loading="loadingChanged"
-                    v-on:refreshed="refreshPending = false"
-                    v-on:file-deleted="refreshPending = true"
-                ></list>
+                <list :path="path" :storage="activeStorage" :icons="icons" :endpoints="endpoints" :axios="axiosInstance"
+                    :refreshPending="refreshPending" v-on:path-changed="pathChanged" v-on:loading="loadingChanged"
+                    v-on:refreshed="refreshPending = false" v-on:file-deleted="refreshPending = true"></list>
             </v-col>
         </v-row>
-        <upload
-            v-if="uploadingFiles !== false"
-            :path="path"
-            :storage="activeStorage"
-            :files="uploadingFiles"
-            :icons="icons"
-            :axios="axiosInstance"
-            :endpoint="endpoints.upload"
-            :maxUploadFilesCount="maxUploadFilesCount"
-            :maxUploadFileSize="maxUploadFileSize"
-            v-on:add-files="addUploadingFiles"
-            v-on:remove-file="removeUploadingFile"
-            v-on:clear-files="uploadingFiles = []"
-            v-on:cancel="uploadingFiles = false"
-            v-on:uploaded="uploaded"
-        ></upload>
+        <upload v-if="uploadingFiles !== false" :path="path" :storage="activeStorage" :files="uploadingFiles"
+            :icons="icons" :axios="axiosInstance" :endpoint="endpoints.upload"
+            :maxUploadFilesCount="maxUploadFilesCount" :maxUploadFileSize="maxUploadFileSize"
+            v-on:add-files="addUploadingFiles" v-on:remove-file="removeUploadingFile"
+            v-on:clear-files="uploadingFiles = []" v-on:cancel="uploadingFiles = false" v-on:uploaded="uploaded">
+        </upload>
     </v-card>
 </template>
 
@@ -68,6 +34,7 @@ import Tree from './Tree.vue'
 import List from './List.vue'
 import Upload from './Upload.vue'
 
+// 支持的存储方式：本地存储、亚马逊 S3、
 const availableStorages = [
     {
         name: 'Local',
@@ -90,12 +57,13 @@ const endpoints = {
     list: { url: '/storage/{storage}/list?path={path}', method: 'get' },
     upload: { url: '/storage/{storage}/upload?path={path}', method: 'post' },
     mkdir: { url: '/storage/{storage}/mkdir?path={path}', method: 'post' },
-    delete: { url: '/storage/{storage}/delete?path={path}', method: 'post' }
+    delete: { url: '/storage/{storage}/delete?path={path}', method: 'post' },
+    download: { url: '/storage/{storage}/download?path={path}', method: 'get' }
 }
 
 const fileIcons = {
-    zip: 'mdi-folder-zip-outline',
-    rar: 'mdi-folder-zip-outline',
+    zip: 'mdi-file-outline',
+    rar: 'mdi-file-outline',
     htm: 'mdi-language-html5',
     html: 'mdi-language-html5',
     js: 'mdi-nodejs',
@@ -143,13 +111,13 @@ export default {
         // custom axios instance
         axios: { type: Function },
         // custom configuration for internal axios instance
-        axiosConfig: { type: Object, default: () => {} },
+        axiosConfig: { type: Object, default: () => { } },
         // max files count to upload at once. Unlimited by default
         maxUploadFilesCount: { type: Number, default: 0 },
         // max file size to upload. Unlimited by default
         maxUploadFileSize: { type: Number, default: 0 }
     },
-    data () {
+    data() {
         return {
             loading: 0,
             path: '',
@@ -160,7 +128,7 @@ export default {
         }
     },
     computed: {
-        storagesArray () {
+        storagesArray() {
             let storageCodes = this.storages.split(',')
             let result = []
             storageCodes.forEach(code => {
@@ -170,17 +138,17 @@ export default {
         }
     },
     methods: {
-        loadingChanged (loading) {
+        loadingChanged(loading) {
             if (loading) {
                 this.loading++
             } else if (this.loading > 0) {
                 this.loading--
             }
         },
-        storageChanged (storage) {
+        storageChanged(storage) {
             this.activeStorage = storage
         },
-        addUploadingFiles (files) {
+        addUploadingFiles(files) {
             files = Array.from(files)
 
             if (this.maxUploadFileSize) {
@@ -196,7 +164,7 @@ export default {
             if (
                 this.maxUploadFilesCount &&
                 this.uploadingFiles.length + files.length >
-                    this.maxUploadFilesCount
+                this.maxUploadFilesCount
             ) {
                 files = files.slice(
                     0,
@@ -206,23 +174,23 @@ export default {
 
             this.uploadingFiles.push(...files)
         },
-        removeUploadingFile (index) {
+        removeUploadingFile(index) {
             this.uploadingFiles.splice(index, 1)
         },
-        uploaded () {
+        uploaded() {
             this.uploadingFiles = false
             this.refreshPending = true
         },
-        pathChanged (path) {
+        pathChanged(path) {
             this.path = path
             this.$emit('change', path)
         }
     },
-    created () {
+    created() {
         this.activeStorage = this.storage
         this.axiosInstance = this.axios || axios.create(this.axiosConfig)
     },
-    mounted () {
+    mounted() {
         if (!this.path && !(this.tree && this.$vuetify.breakpoint.smAndUp)) {
             this.pathChanged('/')
         }
@@ -230,4 +198,6 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+</style>

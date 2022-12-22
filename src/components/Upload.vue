@@ -1,3 +1,4 @@
+<!-- 上传 -->
 <template>
     <v-overlay :absolute="true">
         <v-card flat light class="mx-auto" :loading="loading">
@@ -141,7 +142,7 @@ export default {
         async upload() {
             let formData = new FormData()
 
-            // files
+            // 文件
             for (let file of this.files) {
                 formData.append('files', file, file.name)
             }

@@ -1,3 +1,4 @@
+<!-- 弹出询问窗口 -->
 <template>
     <v-dialog
         v-model="dialog"

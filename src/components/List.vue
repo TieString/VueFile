@@ -1,3 +1,4 @@
+<!-- 列表 -->
 <template>
     <v-card flat tile min-height="380" class="d-flex flex-column">
         <confirm ref="confirm"></confirm>
@@ -45,6 +46,9 @@
                     <v-list-item-action>
                         <v-btn icon @click.stop="deleteItem(item)">
                             <v-icon color="grey lighten-1">mdi-delete-outline</v-icon>
+                        </v-btn>
+                        <v-btn icon @click.stop="downloadItem(item)">
+                            <v-icon color="grey lighten-1">mdi-download-outline</v-icon>
                         </v-btn>
                         <v-btn icon v-if="false">
                             <v-icon color="grey lighten-1">mdi-information</v-icon>
@@ -164,6 +168,29 @@ export default {
                 this.$emit('file-deleted')
                 this.$emit('loading', false)
             }
+        },
+        async downloadItem(item) {
+            this.$emit('loading', true)
+            let url = this.endpoints.download.url
+                .replace(new RegExp('{storage}', 'g'), this.storage)
+                .replace(new RegExp('{path}', 'g'), item.path)
+
+            let config = {
+                url,
+                method: this.endpoints.download.method || 'get',
+                responseType: 'arraybuffer'
+            }
+
+            await this.axios.request(config).then(response => {
+                let a = document.createElement('a')
+                a.href = window.URL.createObjectURL(new Blob([response.data]))
+                a.download = item.path
+                a.click()
+                a.remove()
+            })
+
+            this.$emit('file-download')
+            this.$emit('loading', false)
         }
     },
     watch: {

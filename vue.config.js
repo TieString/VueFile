@@ -1,5 +1,11 @@
 const path = require('path')
 module.exports = {
+    devServer: {
+        hot: true,
+        open: true,
+        port: 8080,
+        host: '127.0.0.1'
+    },
     configureWebpack: {
         resolve: {
             alias: {
@@ -19,7 +25,7 @@ module.exports = {
                         search: '__AXIOS_BASE_URL__',
                         replace:
                             process.env.NODE_ENV === 'development'
-                                ? 'http://192.168.1.105:10086'
+                                ? 'http://192.168.1.105:10086' // ? 'https://2ccb2237.r5.cpolar.top'
                                 : 'https://vuetify-file-browser-server.herokuapp.com',
                         flags: 'g'
                     }

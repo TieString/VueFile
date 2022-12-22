@@ -1,13 +1,7 @@
+<!-- 导航栏 -->
 <template>
     <div>
-        <v-app-bar
-            dense
-            flat
-            fixed
-            :clipped-left="$vuetify.breakpoint.lgAndUp"
-            app
-            color="blue-grey lighten-4"
-        >
+        <v-app-bar dense flat fixed :clipped-left="$vuetify.breakpoint.lgAndUp" app color="light-grey lighten-4">
             <v-app-bar-nav-icon @click.stop="drawer = !drawer" class="mr-0"></v-app-bar-nav-icon>
             <v-toolbar-title>
                 <v-btn text to="/">
@@ -17,11 +11,7 @@
             </v-toolbar-title>
             <div class="flex-grow-1"></div>
             <div v-if="$vuetify.breakpoint.smAndUp">
-                <v-btn
-                    icon
-                    href="https://www.npmjs.com/package/vuetify-file-browser"
-                    target="_blank"
-                >
+                <v-btn icon href="https://www.npmjs.com/package/vuetify-file-browser" target="_blank">
                     <v-icon style="font-size: 32px" color="blue-grey darken-4">mdi-npm</v-icon>
                 </v-btn>
                 <v-btn icon href="https://github.com/semeniuk/vuetify-file-browser" target="_blank">
@@ -50,20 +40,14 @@
                             <v-list-item-title>NPM</v-list-item-title>
                         </v-list-item-content>
                     </template>
-                    <v-list-item
-                        href="https://www.npmjs.com/package/vuetify-file-browser"
-                        target="_blank"
-                    >
+                    <v-list-item href="https://www.npmjs.com/package/vuetify-file-browser" target="_blank">
                         <v-list-item-content class="ml-n5">
                             <v-list-item-title>
                                 <v-icon left>mdi-vuetify</v-icon>Vuetify Component
                             </v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
-                    <v-list-item
-                        href="https://www.npmjs.com/package/vuetify-file-browser-server"
-                        target="_blank"
-                    >
+                    <v-list-item href="https://www.npmjs.com/package/vuetify-file-browser-server" target="_blank">
                         <v-list-item-content class="ml-n5">
                             <v-list-item-title>
                                 <v-icon left>mdi-nodejs</v-icon>Server
@@ -77,30 +61,21 @@
                             <v-list-item-title>GitHub</v-list-item-title>
                         </v-list-item-content>
                     </template>
-                    <v-list-item
-                        href="https://github.com/semeniuk/vuetify-file-browser"
-                        target="_blank"
-                    >
+                    <v-list-item href="https://github.com/semeniuk/vuetify-file-browser" target="_blank">
                         <v-list-item-content class="ml-n5">
                             <v-list-item-title>
                                 <v-icon left>mdi-vuetify</v-icon>Vuetify Component
                             </v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
-                    <v-list-item
-                        href="https://github.com/semeniuk/vuetify-file-browser-server"
-                        target="_blank"
-                    >
+                    <v-list-item href="https://github.com/semeniuk/vuetify-file-browser-server" target="_blank">
                         <v-list-item-content class="ml-n5">
                             <v-list-item-title>
                                 <v-icon left>mdi-nodejs</v-icon>Server
                             </v-list-item-title>
                         </v-list-item-content>
                     </v-list-item>
-                    <v-list-item
-                        href="https://github.com/semeniuk/vuetify-file-browser-demo"
-                        target="_blank"
-                    >
+                    <v-list-item href="https://github.com/semeniuk/vuetify-file-browser-demo" target="_blank">
                         <v-list-item-content class="ml-n5">
                             <v-list-item-title>
                                 <v-icon left>mdi-web</v-icon>Demo Site
@@ -122,4 +97,5 @@ export default {
 </script>
 
 <style>
+
 </style>
