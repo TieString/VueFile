@@ -28,7 +28,8 @@
             <v-divider v-if="dirs.length && files.length"></v-divider>
             <v-list subheader v-if="files.length">
                 <v-subheader>列表</v-subheader>
-                <v-list-item title="点击预览文件" v-for="item in files" :key="item.basename" @click="changePath(item.path)" class="pl-0">
+                <v-list-item title="点击预览文件" v-for="item in files" :key="item.basename" @click="changePath(item.path)"
+                    class="pl-0">
                     <v-list-item-avatar class="ma-0">
                         <v-icon>{{
                                 icons[item.extension.toLowerCase()] ||
@@ -51,7 +52,7 @@
                             <v-icon title="下载此文件" color="grey lighten-1">mdi-download-outline</v-icon>
                         </v-btn>
                         <v-btn icon v-if="false">
-                            <v-icon  color="grey lighten-1">mdi-information</v-icon>
+                            <v-icon color="grey lighten-1">mdi-information</v-icon>
                         </v-btn>
                     </v-list-item-action>
                 </v-list-item>
@@ -144,8 +145,7 @@ export default {
 
                 let response = await this.axios.request(config)
                 this.items = response.data
-            } // 一般文件有后缀
-            else {
+            } else {
 
                 // TODO: 加载和显示文件在详情
             }
