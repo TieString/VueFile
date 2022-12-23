@@ -6,7 +6,7 @@
             <v-toolbar-title>
                 <v-btn text to="/">
                     <v-icon class="mr-2">mdi-folder-multiple-outline</v-icon>
-                    <span class="title">地理与环境学院</span>
+                    <span class="title">地理与环境学院文件管理系统</span>
                 </v-btn>
             </v-toolbar-title>
             <div class="flex-grow-1"></div>

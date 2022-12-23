@@ -65,3 +65,14 @@ export async function getFileChunks(file, size) {
     }
     return chunks
 }
+
+export async function getFileCon(url) {
+    let config = {
+        url,
+        responseType: 'arraybuffer'
+    }
+
+    await this.axios.request(config).then(response => {
+        return response.data
+    })
+}

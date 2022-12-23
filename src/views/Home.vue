@@ -1,7 +1,7 @@
 <!-- 主页面 -->
 <template>
     <div>
-        <h1 class="text-center font-weight-light my-5">文件管理</h1>
+        <!-- <h1 class="text-center font-weight-light my-5">文件管理</h1> -->
         <v-row>
             <v-col>
                 <file-browser

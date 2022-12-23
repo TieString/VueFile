@@ -15,6 +15,7 @@
                 :search="filter"
                 :load-children="readFolder"
                 v-on:update:active="activeChanged"
+                title="缩展文件目录"
                 item-key="path"
                 item-text="basename"
                 dense
@@ -23,12 +24,12 @@
                 class="folders-tree"
             >
                 <template v-slot:prepend="{ item, open }">
-                    <!-- 文件夹 -->
-                    <v-icon v-if="item.type === 'dir'">{{
+                    <!-- 文件夹 图标-->
+                    <v-icon title="缩展文件夹" v-if="item.type === 'dir'">{{
                         open ? "mdi-folder-open-outline" : "mdi-folder-outline"
                     }}</v-icon>
-                    <!-- 文件 -->
-                    <v-icon v-else>{{
+                    <!-- 文件 目录图标-->
+                    <v-icon title="查看文件详细" v-else>{{
                         icons[item.extension.toLowerCase()] || icons["other"]
                     }}</v-icon>
                 </template>
