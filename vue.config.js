@@ -25,7 +25,7 @@ module.exports = {
                         search: '__AXIOS_BASE_URL__',
                         replace:
                             process.env.NODE_ENV === 'development'
-                                ? 'http://192.168.1.105:10086' // ? 'https://2ccb2237.r5.cpolar.top'
+                                ? 'http://localhost:10086' // ? 'https://2ccb2237.r5.cpolar.top' 接口端口
                                 : 'https://vuetify-file-browser-server.herokuapp.com',
                         flags: 'g'
                     }

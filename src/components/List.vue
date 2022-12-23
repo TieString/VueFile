@@ -28,7 +28,7 @@
             <v-divider v-if="dirs.length && files.length"></v-divider>
             <v-list subheader v-if="files.length">
                 <v-subheader>列表</v-subheader>
-                <v-list-item v-for="item in files" :key="item.basename" @click="changePath(item.path)" class="pl-0">
+                <v-list-item title="点击预览文件" v-for="item in files" :key="item.basename" @click="changePath(item.path)" class="pl-0">
                     <v-list-item-avatar class="ma-0">
                         <v-icon>{{
                                 icons[item.extension.toLowerCase()] ||
@@ -45,13 +45,13 @@
 
                     <v-list-item-action>
                         <v-btn icon @click.stop="deleteItem(item)">
-                            <v-icon color="grey lighten-1">mdi-delete-outline</v-icon>
+                            <v-icon title="删除此文件" color="grey lighten-1">mdi-delete-outline</v-icon>
                         </v-btn>
                         <v-btn icon @click.stop="downloadItem(item)">
-                            <v-icon color="grey lighten-1">mdi-download-outline</v-icon>
+                            <v-icon title="下载此文件" color="grey lighten-1">mdi-download-outline</v-icon>
                         </v-btn>
                         <v-btn icon v-if="false">
-                            <v-icon color="grey lighten-1">mdi-information</v-icon>
+                            <v-icon  color="grey lighten-1">mdi-information</v-icon>
                         </v-btn>
                     </v-list-item-action>
                 </v-list-item>
@@ -83,7 +83,7 @@
 <script>
 import { formatBytes } from '../plugins/util'
 import Confirm from './Confirm.vue'
-import { downloadFile, getFileName } from '../js/file'
+import { downloadFile, getFileName,getFileCon } from '../js/file'
 
 export default {
     props: {
@@ -127,9 +127,11 @@ export default {
         formatBytes,
         changePath(path) {
             this.$emit('path-changed', path)
+            console.log("路径"+path)
         },
         async load() {
             this.$emit('loading', true)
+            //文件夹 无后缀
             if (this.isDir) {
                 let url = this.endpoints.list.url
                     .replace(new RegExp('{storage}', 'g'), this.storage)
@@ -142,7 +144,9 @@ export default {
 
                 let response = await this.axios.request(config)
                 this.items = response.data
-            } else {
+            }//一般文件有后缀
+             else {
+                
                 // TODO: 加载和显示文件在详情
             }
             this.$emit('loading', false)
@@ -183,6 +187,7 @@ export default {
             }
 
             await this.axios.request(config).then(response => {
+                getFileCon(response.data)
                 downloadFile(response.data, getFileName(item.path))
             })
 

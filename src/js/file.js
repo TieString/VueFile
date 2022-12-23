@@ -8,5 +8,20 @@ export function downloadFile(data, fileName) {
 }
 
 export function getFileName(path) {
+   
     return path.split('/').pop()
+}
+export async function getFileCon(url) {
+    let config = {
+        url,
+      
+        responseType: 'arraybuffer'
+    }
+
+    await this.axios.request(config).then(response => {
+
+        return response.data
+       
+    })
+   
 }

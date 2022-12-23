@@ -75,7 +75,7 @@
                     </v-card-actions>
                 </v-card>
             </v-menu>
-            <v-btn v-if="path" icon @click="$refs.inputUpload.click()" title="Upload Files">
+            <v-btn v-if="path" icon @click="$refs.inputUpload.click()" title="上传文件至服务">
                 <v-icon>mdi-plus-circle</v-icon>
                 <input v-show="false" ref="inputUpload" type="file" multiple @change="addFiles" />
             </v-btn>
