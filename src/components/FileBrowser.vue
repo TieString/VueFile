@@ -58,7 +58,8 @@ const endpoints = {
     upload: { url: '/storage/{storage}/upload?path={path}', method: 'post' },
     mkdir: { url: '/storage/{storage}/mkdir?path={path}', method: 'post' },
     delete: { url: '/storage/{storage}/delete?path={path}', method: 'post' },
-    download: { url: '/storage/{storage}/download?path={path}', method: 'get' }
+    download: { url: '/storage/{storage}/download?path={path}', method: 'get' },
+    multipartyUpload: { url: '/storage/{storage}/multipartyUpload?path={path}', method: 'post' }
 }
 
 const fileIcons = {

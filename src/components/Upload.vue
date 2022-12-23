@@ -53,15 +53,21 @@
                     <v-icon left>mdi-plus-circle</v-icon>添加
                     <input v-show="false" ref="inputUpload" type="file" multiple @change="add" />
                 </v-btn>
-                <v-btn depressed color="success" @click="upload" class="ml-1" :disabled="!files">
+                <v-btn depressed color="success" @click="multipartyUpload" class="ml-1" :disabled="!files">
                     上传
                     <v-icon right>mdi-upload-outline</v-icon>
                 </v-btn>
             </v-toolbar>
             <v-overlay :value="uploading" :absolute="true" color="white" opacity="0.9">
-                <v-progress-linear v-model="progress" height="25" striped rounded reactive>
+                <v-progress-linear v-model="progress" height="25" striped rounded reactiv>
                     <strong>{{ Math.ceil(progress) }}%</strong>
                 </v-progress-linear>
+                <v-btn depressed color="error" @click="stopUploading" class="mx-1">
+                    取消
+                </v-btn>
+                <v-btn depressed color="success" @click="pauseUploading" class="mx-1">
+                    暂停
+                </v-btn>
             </v-overlay>
         </v-card>
     </v-overlay>
@@ -69,6 +75,8 @@
 
 <script>
 import { formatBytes } from '../plugins/util'
+import axios from 'axios'
+import { getFileChunks, getFileInfo } from '../js/file'
 
 const imageMimeTypes = ['image/png', 'image/jpeg']
 
@@ -88,7 +96,8 @@ export default {
             loading: false,
             uploading: false,
             progress: 0,
-            listItems: []
+            listItems: [],
+            uploadSource: axios.CancelToken.source()
         }
     },
     methods: {
@@ -158,7 +167,8 @@ export default {
                 onUploadProgress: progressEvent => {
                     this.progress =
                         (progressEvent.loaded / progressEvent.total) * 100
-                }
+                },
+                cancelToken: this.uploadSource.token
             }
 
             this.uploading = true
@@ -166,7 +176,71 @@ export default {
             console.log(response)
             this.uploading = false
             this.$emit('uploaded')
+        },
+
+        /* 断点续传 */
+        async multipartyUpload() {
+            let url = '/storage/{storage}/multipartyUpload?path={path}'
+                .replace(new RegExp('{storage}', 'g'), this.storage)
+                .replace(new RegExp('{path}', 'g'), this.path)
+
+            // 文件上传
+            for (let file of this.files) {
+                this.uploading = true
+                let result = []
+                let chunks = await getFileChunks(file, Math.pow(1024, 2))
+                await chunks.forEach(chunk => {
+                    let formData = new FormData()
+                    formData.append('file', chunk.file)
+                    let config = {
+                        url,
+                        method: this.endpoint.method || 'post',
+                        data: formData,
+                        onUploadProgress: progressEvent => {
+                            this.progress =
+                                (progressEvent.loaded / progressEvent.total) * 100
+                        },
+                        cancelToken: this.uploadSource.token,
+                        params: {
+                            hash: chunk.hash,
+                            name: chunk.name,
+                            type: chunk.type
+                        }
+                    }
+                    this.axios.request(config).then(async res => {
+                        Number((((chunk.name + 1) / chunks.length) * 100).toFixed(2))
+                        result.push(res.data)
+                    }).catch(err => {
+                        result = { err }
+                    })
+                })
+                url = '/storage/{storage}/upload/merge'
+                    .replace(new RegExp('{storage}', 'g'), this.storage)
+                    .replace(new RegExp('{path}', 'g'), this.path)
+                let { hash, type, name } = await getFileInfo(file)
+                this.axios.request({
+                    url: url,
+                    method: 'get',
+                    params: { hash, type, name }
+                }).then(result => {
+                    // 合并完成
+                    // result = [result.data, ...result]
+                    this.uploading = false
+                    this.$emit('uploaded')
+                })
+            }
+        },
+
+        /* 取消上传 */
+        stopUploading() {
+            this.uploadSource.cancel()
+            this.uploading = false
+        },
+        /* 暂停上传 */
+        pauseUploading() {
+
         }
+
     },
     watch: {
         files: {
