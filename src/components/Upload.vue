@@ -62,10 +62,10 @@
                 <v-progress-linear v-model="progress" height="25" striped rounded reactiv>
                     <strong>{{ Math.ceil(progress) }}%</strong>
                 </v-progress-linear>
-                <v-btn depressed color="error" @click="stopUploading" class="mx-1">
+                <v-btn depressed color="error" @click="cancelUpload" class="mx-1">
                     取消
                 </v-btn>
-                <v-btn depressed color="success" @click="pauseUploading" class="mx-1">
+                <v-btn depressed color="success" @click="pauseUpload" class="mx-1">
                     暂停
                 </v-btn>
             </v-overlay>
@@ -97,7 +97,8 @@ export default {
             uploading: false,
             progress: 0,
             listItems: [],
-            uploadSource: axios.CancelToken.source()
+            uploadCancelToken: axios.CancelToken,
+            uploadCancelHandleList: []
         }
     },
     methods: {
@@ -168,7 +169,7 @@ export default {
                     this.progress =
                         (progressEvent.loaded / progressEvent.total) * 100
                 },
-                cancelToken: this.uploadSource.token
+                cancelToken: this.uploadCancelToken.source().token
             }
 
             this.uploading = true
@@ -177,19 +178,29 @@ export default {
             this.uploading = false
             this.$emit('uploaded')
         },
+        /* 取消上传 */
+        cancelUpload() {
+            this.uploadCancelToken.cancel()
+            this.uploading = false
+        },
+        /* 暂停上传 */
+        pauseUpload() {
 
-        /* 断点续传 */
+        },
+        /* 分片上传 */
         async multipartyUpload() {
-            let url = '/storage/{storage}/multipartyUpload?path={path}'
-                .replace(new RegExp('{storage}', 'g'), this.storage)
-                .replace(new RegExp('{path}', 'g'), this.path)
-
             // 文件上传
             for (let file of this.files) {
+                let url = '/storage/{storage}/multipartyUpload?path={path}'
+                    .replace(new RegExp('{storage}', 'g'), this.storage)
+                    .replace(new RegExp('{path}', 'g'), this.path)
+
                 this.uploading = true
                 let result = []
                 let chunks = await getFileChunks(file, Math.pow(1024, 2))
+                let sendChunkCount = 0
                 await chunks.forEach(chunk => {
+                    sendChunkCount++
                     let formData = new FormData()
                     formData.append('file', chunk.file)
                     let config = {
@@ -200,7 +211,10 @@ export default {
                             this.progress =
                                 (progressEvent.loaded / progressEvent.total) * 100
                         },
-                        cancelToken: this.uploadSource.token,
+                        cancelToken: new axios.CancelToken(c => {
+                            this.uploadCancelHandleList.push(c)
+                        }),
+
                         params: {
                             hash: chunk.hash,
                             name: chunk.name,
@@ -208,39 +222,43 @@ export default {
                         }
                     }
                     this.axios.request(config).then(async res => {
+                        if (res.data.code === 0) { // 文件存在
+                            this.uploading = false
+                            this.$emit('uploaded')
+                            this.cancelMultipartyUpload()
+                            return
+                        }
                         Number((((chunk.name + 1) / chunks.length) * 100).toFixed(2))
                         result.push(res.data)
                     }).catch(err => {
                         result = { err }
                     })
-                })
-                url = '/storage/{storage}/upload/merge'
-                    .replace(new RegExp('{storage}', 'g'), this.storage)
-                    .replace(new RegExp('{path}', 'g'), this.path)
-                let { hash, type, name } = await getFileInfo(file)
-                this.axios.request({
-                    url: url,
-                    method: 'get',
-                    params: { hash, type, name }
-                }).then(result => {
-                    // 合并完成
-                    // result = [result.data, ...result]
-                    this.uploading = false
-                    this.$emit('uploaded')
+                    // 开始合并
+                    if (sendChunkCount === chunks.length) this.multipartyFileMerge(file, chunks.length)
                 })
             }
         },
-
-        /* 取消上传 */
-        stopUploading() {
-            this.uploadSource.cancel()
-            this.uploading = false
+        /* 合并文件 */
+        async multipartyFileMerge(file, chunksCount) {
+            const url = '/storage/{storage}/merge?path={path}'
+                .replace(new RegExp('{storage}', 'g'), this.storage)
+                .replace(new RegExp('{path}', 'g'), this.path)
+            let { hash, type, name } = await getFileInfo(file)
+            this.axios.request({
+                url: url,
+                method: 'get',
+                params: { hash, type, name, chunksCount }
+            }).then(result => {
+                // 合并完成
+                // result = [result.data, ...result]
+                this.uploading = false
+                this.$emit('uploaded')
+            })
         },
-        /* 暂停上传 */
-        pauseUploading() {
-
+        /* 取消分片上传 依次取消所有任务 */
+        cancelMultipartyUpload() {
+            this.cancelHandleList.forEach(fn => fn())
         }
-
     },
     watch: {
         files: {
