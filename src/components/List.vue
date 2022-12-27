@@ -2,8 +2,7 @@
 <template>
     <v-card flat tile min-height="380" class="d-flex flex-column">
         <confirm ref="confirm"></confirm>
-        <v-card-text v-if="!path" class="grow d-flex justify-center align-center grey--text">Select a folder or a
-            file</v-card-text>
+        <v-card-text v-if="!path" class="grow d-flex justify-center align-center grey--text">选择一个文件或文件夹</v-card-text>
         <v-card-text v-else-if="isFile" class="grow d-flex justify-center align-center">File: {{ path }}</v-card-text>
         <v-card-text v-else-if="dirs.length || files.length" class="grow">
             <v-list subheader v-if="dirs.length">

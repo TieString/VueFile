@@ -76,3 +76,56 @@ export async function getFileCon(url) {
         return response.data
     })
 }
+
+/**
+ * @description 设置cookie
+ * @author TieString
+ * @date 2022/12/27
+ * @param {*} name 名称
+ * @param {*} value 值
+ * @param {*} options 可选设置
+ */
+export function setCookie(name, value, { expires }) {
+    expires =
+        typeof expires === 'number' && expires
+            ? new Date().setTime(new Date().getTime() + expires * 1000)
+            : ''
+
+    value = encodeURIComponent(value)
+
+    let updatedCookie = `${name}=${value}; Max-Age=${expires}`
+
+    document.cookie = updatedCookie
+}
+
+export function getCookie(name) {
+    let value = '; ' + document.cookie
+    let parts = value.split('; ' + name + '=')
+    if (parts.length === 2) {
+        return parts
+            .pop()
+            .split(';')
+            .shift()
+    }
+}
+
+export function deleteCookie(name) {
+    setCookie(name, '', {
+        expires: -1
+    })
+}
+
+export function checkTasks() {
+    let results = []
+    const cookies = document.cookie.split('; ')
+    cookies.forEach(cookie => {
+        cookie = cookie.split('=')
+        if (cookie.length === 2) {
+            const content = cookie[1]
+            if (content === 'uploading') {
+                results.push(cookie[0])
+            }
+        }
+    })
+    return results
+}

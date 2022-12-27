@@ -38,7 +38,7 @@
             </v-card-text>
             <v-card-text v-else class="py-6 text-center">
                 <v-btn @click="$refs.inputUpload.click()">
-                    <v-icon left>mdi-plus-circle</v-icon>Add files
+                    <v-icon left>mdi-plus-circle</v-icon>添加文件
                 </v-btn>
             </v-card-text>
             <v-divider></v-divider>
@@ -62,7 +62,7 @@
                 <v-progress-linear v-model="progress" height="25" striped rounded reactiv>
                     <strong>{{ Math.ceil(progress) }}%</strong>
                 </v-progress-linear>
-                <v-btn depressed color="error" @click="cancelUpload" class="mx-1">
+                <v-btn depressed color="error" @click="cancelMultipartyUpload" class="mx-1">
                     取消
                 </v-btn>
                 <v-btn depressed color="success" @click="pauseUpload" class="mx-1">
@@ -76,10 +76,13 @@
 <script>
 import { formatBytes } from '../plugins/util'
 import axios from 'axios'
-import { getFileChunks, getFileInfo } from '../js/file'
+import { getFileChunks, getFileInfo, setCookie, deleteCookie } from '../js/file'
+import { openIndexedDB, addData, deleteData } from '../js/indexedDB'
 
 const imageMimeTypes = ['image/png', 'image/jpeg']
-
+let multipartyUploadDB = openIndexedDB('multipartyUpload').then((params) => {
+    multipartyUploadDB = params
+})
 export default {
     props: {
         path: String,
@@ -173,14 +176,13 @@ export default {
             }
 
             this.uploading = true
-            let response = await this.axios.request(config)
-            console.log(response)
+            await this.axios.request(config)
             this.uploading = false
             this.$emit('uploaded')
         },
         /* 取消上传 */
         cancelUpload() {
-            this.uploadCancelToken.cancel()
+            this.uploadCancelToken.source.cancel()
             this.uploading = false
         },
         /* 暂停上传 */
@@ -191,13 +193,16 @@ export default {
         async multipartyUpload() {
             // 文件上传
             for (let file of this.files) {
+                this.uploading = true
+
                 let url = '/storage/{storage}/multipartyUpload?path={path}'
                     .replace(new RegExp('{storage}', 'g'), this.storage)
                     .replace(new RegExp('{path}', 'g'), this.path)
 
-                this.uploading = true
                 let result = []
                 let chunks = await getFileChunks(file, Math.pow(1024, 2))
+                setCookie(chunks[0].hash, 'uploading', { expires: 60 * 2 })
+                addData(multipartyUploadDB, 'multipartyUpload', { hash: chunks[0].hash, file })
                 let sendChunkCount = 0
                 await chunks.forEach(chunk => {
                     sendChunkCount++
@@ -251,13 +256,17 @@ export default {
             }).then(result => {
                 // 合并完成
                 // result = [result.data, ...result]
+                deleteCookie(hash)
+                deleteData(multipartyUploadDB, 'multipartyUpload', hash)
                 this.uploading = false
                 this.$emit('uploaded')
             })
         },
         /* 取消分片上传 依次取消所有任务 */
         cancelMultipartyUpload() {
-            this.cancelHandleList.forEach(fn => fn())
+            this.uploadCancelHandleList.forEach(fn => fn())
+            this.uploading = false
+            this.$emit('uploaded')
         }
     },
     watch: {

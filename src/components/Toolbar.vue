@@ -9,12 +9,8 @@
                     </v-btn>
                 </template>
                 <v-list class="storage-select-list">
-                    <v-list-item
-                        v-for="(item, index) in storages"
-                        :key="index"
-                        :disabled="item.code === storageObject.code"
-                        @click="changeStorage(item.code)"
-                    >
+                    <v-list-item v-for="(item, index) in storages" :key="index"
+                        :disabled="item.code === storageObject.code" @click="changeStorage(item.code)">
                         <v-list-item-icon>
                             <v-icon v-text="item.icon"></v-icon>
                         </v-list-item-icon>
@@ -23,17 +19,13 @@
                 </v-list>
             </v-menu>
             <v-btn text :input-value="path === '/'" @click="changePath('/')">
-                <v-icon class="mr-2">{{storageObject.icon}}</v-icon>
-                {{storageObject.name}}
+                <v-icon class="mr-2">{{ storageObject.icon }}</v-icon>
+                {{ storageObject.name }}
             </v-btn>
             <template v-for="(segment, index) in pathSegments">
                 <v-icon :key="index + '-icon'">mdi-chevron-right</v-icon>
-                <v-btn
-                    text
-                    :input-value="index === pathSegments.length - 1"
-                    :key="index + '-btn'"
-                    @click="changePath(segment.path)"
-                >{{ segment.name }}</v-btn>
+                <v-btn text :input-value="index === pathSegments.length - 1" :key="index + '-btn'"
+                    @click="changePath(segment.path)">{{ segment.name }}</v-btn>
             </template>
         </v-toolbar-items>
         <div class="flex-grow-1"></div>
@@ -46,14 +38,9 @@
                     </v-btn>
                 </template>
                 <span v-if="pathSegments.length === 1">返回根目录</span>
-                <span v-else>返回 "{{pathSegments[pathSegments.length - 2].name}}"</span>
+                <span v-else>返回 "{{ pathSegments[pathSegments.length - 2].name }}"</span>
             </v-tooltip>
-            <v-menu
-                v-model="newFolderPopper"
-                :close-on-content-click="false"
-                :nudge-width="200"
-                offset-y
-            >
+            <v-menu v-model="newFolderPopper" :close-on-content-click="false" :nudge-width="200" offset-y>
                 <template v-slot:activator="{ on }">
                     <v-btn v-if="path" icon v-on="on" title="Create Folder">
                         <v-icon>mdi-folder-plus-outline</v-icon>
@@ -66,16 +53,11 @@
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
                         <v-btn @click="newFolderPopper = false" depressed>Cancel</v-btn>
-                        <v-btn
-                            color="success"
-                            :disabled="!newFolderName"
-                            depressed
-                            @click="mkdir"
-                        >Create Folder</v-btn>
+                        <v-btn color="success" :disabled="!newFolderName" depressed @click="mkdir">Create Folder</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-menu>
-            <v-btn v-if="path" icon @click="$refs.inputUpload.click()" title="上传文件至服务">
+            <v-btn v-if="path" icon @click="$refs.inputUpload.click()" title="上传文件">
                 <v-icon>mdi-plus-circle</v-icon>
                 <input v-show="false" ref="inputUpload" type="file" multiple @change="addFiles" />
             </v-btn>
@@ -92,14 +74,14 @@ export default {
         endpoints: Object,
         axios: Function
     },
-    data () {
+    data() {
         return {
             newFolderPopper: false,
             newFolderName: ''
         }
     },
     computed: {
-        pathSegments () {
+        pathSegments() {
             let path = '/'
             let isFolder = this.path[this.path.length - 1] === '/'
             let segments = this.path.split('/').filter(item => item)
@@ -115,33 +97,33 @@ export default {
 
             return segments
         },
-        storageObject () {
+        storageObject() {
             return this.storages.find(item => item.code === this.storage)
         }
     },
     methods: {
-        changeStorage (code) {
+        changeStorage(code) {
             if (this.storage !== code) {
                 this.$emit('storage-changed', code)
                 this.$emit('path-changed', '')
             }
         },
-        changePath (path) {
+        changePath(path) {
             this.$emit('path-changed', path)
         },
-        goUp () {
+        goUp() {
             let segments = this.pathSegments
             let path =
-                    segments.length === 1
-                        ? '/'
-                        : segments[segments.length - 2].path
+                segments.length === 1
+                    ? '/'
+                    : segments[segments.length - 2].path
             this.changePath(path)
         },
-        async addFiles (event) {
+        async addFiles(event) {
             this.$emit('add-files', event.target.files)
             this.$refs.inputUpload.value = ''
         },
-        async mkdir () {
+        async mkdir() {
             this.$emit('loading', true)
             let url = this.endpoints.mkdir.url
                 .replace(new RegExp('{storage}', 'g'), this.storage)
