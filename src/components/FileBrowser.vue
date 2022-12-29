@@ -33,7 +33,8 @@ import Toolbar from './Toolbar.vue'
 import Tree from './Tree.vue'
 import List from './List.vue'
 import Upload from './Upload.vue'
-import { checkTasks } from '../js/file'
+import { downloadFile, getFileChunks, getFileInfo } from '../js/file'
+import { openIndexedDB, deleteData, getAllDataByStore } from '../js/indexedDB'
 
 // 支持的存储方式：本地存储、亚马逊 S3、
 const availableStorages = [
@@ -196,8 +197,50 @@ export default {
         if (!this.path && !(this.tree && this.$vuetify.breakpoint.smAndUp)) {
             this.pathChanged('/')
         }
-        const tasks = checkTasks()
-        console.log(tasks)
+
+        /* 断点续传 */
+        let db = openIndexedDB('multipartyUpload').then(async (database) => {
+            db = database
+            let files = await getAllDataByStore(database, 'multipartyUpload')
+            for (let file of files) {
+                let url = endpoints.multipartyUpload.url
+                    .replace(new RegExp('{storage}', 'g'), this.storage)
+                    .replace(new RegExp('{path}', 'g'), this.path)
+
+                let chunks = await getFileChunks(file.file, Math.pow(1024, 2))
+                let sendChunkCount = 0
+                await chunks.forEach(chunk => {
+                    sendChunkCount++
+                    let formData = new FormData()
+                    formData.append('file', chunk.file)
+                    let config = {
+                        url,
+                        method: 'post',
+                        data: formData,
+                        params: {
+                            hash: chunk.hash,
+                            name: chunk.name,
+                            type: chunk.type
+                        }
+                    }
+                    this.axiosInstance.request(config)
+                    // 开始合并
+                })
+                if (sendChunkCount === chunks.length) {
+                    const url = '/storage/{storage}/merge?path={path}'
+                        .replace(new RegExp('{storage}', 'g'), this.storage)
+                        .replace(new RegExp('{path}', 'g'), this.path)
+                    let { hash, type, name } = await getFileInfo(file.file)
+                    this.axiosInstance.request({
+                        url: url,
+                        method: 'get',
+                        params: { hash, type, name, chunksCount: chunks.length }
+                    }).then(result => {
+                        deleteData(db, 'multipartyUpload', hash)
+                    })
+                }
+            }
+        })
     }
 }
 </script>

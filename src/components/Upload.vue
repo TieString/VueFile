@@ -76,7 +76,7 @@
 <script>
 import { formatBytes } from '../plugins/util'
 import axios from 'axios'
-import { getFileChunks, getFileInfo, setCookie, deleteCookie } from '../js/file'
+import { getFileChunks, getFileInfo } from '../js/file'
 import { openIndexedDB, addData, deleteData } from '../js/indexedDB'
 
 const imageMimeTypes = ['image/png', 'image/jpeg']
@@ -201,7 +201,7 @@ export default {
 
                 let result = []
                 let chunks = await getFileChunks(file, Math.pow(1024, 2))
-                setCookie(chunks[0].hash, 'uploading', { expires: 60 * 2 })
+                // setCookie(chunks[0].hash, 'uploading', { expires: 60 * 2 })
                 addData(multipartyUploadDB, 'multipartyUpload', { hash: chunks[0].hash, file })
                 let sendChunkCount = 0
                 await chunks.forEach(chunk => {
@@ -256,7 +256,7 @@ export default {
             }).then(result => {
                 // 合并完成
                 // result = [result.data, ...result]
-                deleteCookie(hash)
+                // deleteCookie(hash)
                 deleteData(multipartyUploadDB, 'multipartyUpload', hash)
                 this.uploading = false
                 this.$emit('uploaded')
