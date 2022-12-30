@@ -59,7 +59,7 @@
                 </v-btn>
             </v-toolbar>
             <v-overlay :value="uploading" :absolute="true" color="white" opacity="0.9">
-                <v-progress-linear v-model="progress" height="25" striped rounded reactiv>
+                <v-progress-linear v-model="progress" height="25" rounded reactiv>
                     <strong>{{ Math.ceil(progress) }}%</strong>
                 </v-progress-linear>
                 <v-btn depressed color="error" @click="cancelMultipartyUpload" class="mx-1">

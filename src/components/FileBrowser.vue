@@ -199,12 +199,11 @@ export default {
         }
 
         /* 断点续传 */
-        let db = openIndexedDB('multipartyUpload').then(async (database) => {
-            db = database
+        openIndexedDB('multipartyUpload').then(async (database) => {
             let files = await getAllDataByStore(database, 'multipartyUpload')
             for (let file of files) {
                 let url = endpoints.multipartyUpload.url
-                    .replace(new RegExp('{storage}', 'g'), this.storage)
+                    .replace(new RegExp('{storage}', 'g'), 'local')
                     .replace(new RegExp('{path}', 'g'), this.path)
 
                 let chunks = await getFileChunks(file.file, Math.pow(1024, 2))
@@ -236,7 +235,7 @@ export default {
                         method: 'get',
                         params: { hash, type, name, chunksCount: chunks.length }
                     }).then(result => {
-                        deleteData(db, 'multipartyUpload', hash)
+                        deleteData(database, 'multipartyUpload', hash)
                     })
                 }
             }
