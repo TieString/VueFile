@@ -28,7 +28,7 @@
 
 <script>
 import axios from 'axios'
-
+import Vue from 'vue'
 import Toolbar from './Toolbar.vue'
 import Tree from './Tree.vue'
 import List from './List.vue'
@@ -201,6 +201,7 @@ export default {
         /* 断点续传 */
         openIndexedDB('multipartyUpload').then(async (database) => {
             let files = await getAllDataByStore(database, 'multipartyUpload')
+            Vue.prototype.$filesUploading = files
             for (let file of files) {
                 let url = endpoints.multipartyUpload.url
                     .replace(new RegExp('{storage}', 'g'), 'local')
