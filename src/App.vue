@@ -1,6 +1,6 @@
 <template>
     <v-app id="app">
-        <navbar />
+        <navbar :axiosConfig="{ baseURL: '__AXIOS_BASE_URL__' }" />
         <v-main>
             <v-container>
                 <router-view />
