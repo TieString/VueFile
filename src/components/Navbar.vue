@@ -20,7 +20,7 @@
             </div>
         </v-app-bar>
         <v-navigation-drawer v-model="drawer" fixed app :clipped="$vuetify.breakpoint.lgAndUp">
-            <TaskProgress v-for="file in filesUploading" :key="file" :fileInfo='filesUploading[file]'>
+            <TaskProgress v-for="file of filesUploading" :key="file.hash" :fileInfo='file' :axios="axios">
             </TaskProgress>
 
         </v-navigation-drawer>
@@ -28,11 +28,9 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import axios from 'axios'
 import TaskProgress from './TaskProgress.vue'
-import { downloadFile, getFileChunks, getFileInfo } from '../js/file'
-import { openIndexedDB, deleteData, getAllDataByStore } from '../js/indexedDB'
+import { openIndexedDB, getAllDataByStore } from '../js/indexedDB'
 
 export default {
     components: {
@@ -44,8 +42,7 @@ export default {
     data() {
         return {
             drawer: null,
-            filesUploading: Vue.prototype.$taskList,
-            ps: Vue.prototype.$ps,
+            filesUploading: null,
             axios: null,
             progress: 0
         }
@@ -57,58 +54,16 @@ export default {
     methods: {
         showmsg() {
             console.log(this.$taskList)
-            Vue.prototype.$taskList['test'] = 'test'
         }
     },
     mounted() {
-        setTimeout(() => {
-            this.showmsg()
-        }, 800)
-        /* 断点续传 */
+        // setTimeout(() => {
+        //     this.showmsg()
+        // }, 800)
+        /* 检测任务列表 */
         openIndexedDB('multipartyUpload').then(async (database) => {
             let files = await getAllDataByStore(database, 'multipartyUpload')
-            for (let file of files) {
-                let url = '/storage/{storage}/multipartyUpload?path={path}'
-                    .replace(new RegExp('{storage}', 'g'), 'local')
-                    .replace(new RegExp('{path}', 'g'), '/')
-
-                let chunks = await getFileChunks(file.file, Math.pow(1024, 2))
-                let sendChunkCount = 0
-                await chunks.forEach((chunk, index) => {
-                    sendChunkCount++
-                    let formData = new FormData()
-                    formData.append('file', chunk.file)
-                    let config = {
-                        url,
-                        method: 'post',
-                        data: formData,
-                        onUploadProgress: progressEvent => {
-                            this.progress =
-                                (progressEvent.loaded / progressEvent.total) * 100
-                        },
-                        params: {
-                            hash: chunk.hash,
-                            name: chunk.name,
-                            type: chunk.type
-                        }
-                    }
-                    this.axios.request(config)
-                    // 开始合并
-                })
-                if (sendChunkCount === chunks.length) {
-                    const url = '/storage/{storage}/merge?path={path}'
-                        .replace(new RegExp('{storage}', 'g'), 'local')
-                        .replace(new RegExp('{path}', 'g'), '/')
-                    let { hash, type, name } = await getFileInfo(file.file)
-                    this.axios.request({
-                        url: url,
-                        method: 'get',
-                        params: { hash, type, name, chunksCount: chunks.length }
-                    }).then(result => {
-                        // deleteData(database, 'multipartyUpload', hash)
-                    })
-                }
-            }
+            this.filesUploading = files
         })
     }
 }
