@@ -32,6 +32,7 @@ import Toolbar from './Toolbar.vue'
 import Tree from './Tree.vue'
 import List from './List.vue'
 import Upload from './Upload.vue'
+import { globalBus } from '../js/globalBus'
 
 // 支持的存储方式：本地存储、亚马逊 S3、
 const availableStorages = [
@@ -194,6 +195,10 @@ export default {
         if (!this.path && !(this.tree && this.$vuetify.breakpoint.smAndUp)) {
             this.pathChanged('/')
         }
+        globalBus.$on('fileUploaded', () => {
+            console.log(this.refreshPending)
+            this.refreshPending = true
+        })
     }
 }
 </script>

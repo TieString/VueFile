@@ -2,7 +2,7 @@
     <v-card class="mx-auto outer-container" max-width="245" outlined>
         <div class="fileInfo">
             <v-card-title class="pa-0" :title="fileInfo.file.name">
-                <span class="fileName"><strong>{{ fileInfo.file.name }}</strong></span>
+                <span class="fileName">{{ fileInfo.file.name }}</span>
             </v-card-title>
 
             <v-card-subtitle class="pa-0 pt-2" :title="fileInfo.hash">
@@ -37,6 +37,7 @@
 </template>
 <script>
 import { getFileChunks, getFileInfo } from '../js/file'
+import { globalBus } from '../js/globalBus'
 
 const chunckSize = Math.pow(1024, 2)
 
@@ -105,6 +106,7 @@ export default {
                     params: { hash, type, name, chunksCount: chunks.length }
                 }).then(result => {
                     // deleteData(database, 'multipartyUpload', hash)
+                    globalBus.$emit('fileUploaded')
                 })
             }
         },
