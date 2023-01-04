@@ -54,6 +54,27 @@ export function addData(db, storeName, data) {
 }
 
 /**
+ * 通过主键更新数据
+ * @param {object} db 数据库实例
+ * @param {string} storeName 仓库名称
+ * @param {string} data 主键值
+ */
+export function updateData(db, storeName, data) {
+    const request = db
+        .transaction([storeName], 'readwrite')
+        .objectStore(storeName)
+        .put(data)
+
+    request.onerror = function(event) {
+        console.log('更新失败')
+    }
+
+    request.onsuccess = function(event) {
+        console.log('更新成功')
+    }
+}
+
+/**
  * 通过主键删除数据
  * @param {object} db 数据库实例
  * @param {string} storeName 仓库名称
@@ -80,7 +101,7 @@ export function deleteData(db, storeName, key) {
  * @param {string} storeName 仓库名称
  * @param {string} key 主键值
  */
-export function getDataByKey(db, storeName, key, callback) {
+export function getDataByKey(db, storeName, key) {
     return new Promise((resolve, reject) => {
         const request = db
             .transaction([storeName])

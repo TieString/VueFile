@@ -6,7 +6,7 @@
         <v-card-text v-else-if="isFile" class="grow d-flex justify-center align-center">File: {{ path }}</v-card-text>
         <v-card-text v-else-if="dirs.length || files.length" class="grow">
             <v-list subheader v-if="dirs.length">
-                <v-subheader>Folders</v-subheader>
+                <v-subheader>文件夹</v-subheader>
                 <v-list-item v-for="item in dirs" :key="item.basename" @click="changePath(item.path)" class="pl-0">
                     <v-list-item-avatar class="ma-0">
                         <v-icon>mdi-folder-outline</v-icon>
@@ -26,7 +26,7 @@
             </v-list>
             <v-divider v-if="dirs.length && files.length"></v-divider>
             <v-list subheader v-if="files.length">
-                <v-subheader>列表</v-subheader>
+                <v-subheader>文件</v-subheader>
                 <v-list-item title="点击预览文件" v-for="item in files" :key="item.basename" @click="changePath(item.path)"
                     class="pl-0">
                     <v-list-item-avatar class="ma-0">
@@ -59,8 +59,7 @@
         </v-card-text>
         <v-card-text v-else-if="filter" class="grow d-flex justify-center align-center grey--text py-5">No files or
             folders found</v-card-text>
-        <v-card-text v-else class="grow d-flex justify-center align-center grey--text py-5">The folder is
-            empty</v-card-text>
+        <v-card-text v-else class="grow d-flex justify-center align-center grey--text py-5">文件夹为空</v-card-text>
         <v-divider v-if="path"></v-divider>
         <v-toolbar v-if="false && path && isFile" dense flat class="shrink">
             <v-btn icon>

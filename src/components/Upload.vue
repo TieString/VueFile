@@ -201,10 +201,16 @@ export default {
 
                 let result = []
                 let chunks = await getFileChunks(file, Math.pow(1024, 2))
-                // setCookie(chunks[0].hash, 'uploading', { expires: 60 * 2 })
-                addData(multipartyUploadDB, 'multipartyUpload', { hash: chunks[0].hash, file })
+                addData(multipartyUploadDB, 'multipartyUpload', {
+                    hash: chunks[0].hash, file, path: this.path
+                })
                 let sendChunkCount = 0
-                await chunks.forEach(chunk => {
+                let finishedProgressCount = 0
+                let chunkProgresses = []
+                for (let i = 0; i < chunks.length; i++) {
+                    chunkProgresses[i] = 0
+                }
+                await chunks.forEach((chunk, index) => {
                     sendChunkCount++
                     let formData = new FormData()
                     formData.append('file', chunk.file)
@@ -213,8 +219,12 @@ export default {
                         method: this.endpoint.method || 'post',
                         data: formData,
                         onUploadProgress: progressEvent => {
-                            this.progress =
-                                (progressEvent.loaded / progressEvent.total) * 100
+                            if (progressEvent.loaded === progressEvent.total) {
+                                chunkProgresses[index] = 1
+                                window.localStorage[chunks[0].hash] = chunkProgresses
+                                finishedProgressCount++
+                                this.progress = (finishedProgressCount / chunks.length) * 100
+                            }
                         },
                         cancelToken: new axios.CancelToken(c => {
                             this.uploadCancelHandleList.push(c)
@@ -256,7 +266,6 @@ export default {
             }).then(result => {
                 // 合并完成
                 // result = [result.data, ...result]
-                // deleteCookie(hash)
                 deleteData(multipartyUploadDB, 'multipartyUpload', hash)
                 this.uploading = false
                 this.$emit('uploaded')

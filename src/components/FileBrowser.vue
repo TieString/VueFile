@@ -196,7 +196,6 @@ export default {
             this.pathChanged('/')
         }
         globalBus.$on('fileUploaded', () => {
-            console.log(this.refreshPending)
             this.refreshPending = true
         })
     }

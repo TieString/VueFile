@@ -42,18 +42,18 @@
             </v-tooltip>
             <v-menu v-model="newFolderPopper" :close-on-content-click="false" :nudge-width="200" offset-y>
                 <template v-slot:activator="{ on }">
-                    <v-btn v-if="path" icon v-on="on" title="Create Folder">
+                    <v-btn icon v-on="on" title="创建文件夹">
                         <v-icon>mdi-folder-plus-outline</v-icon>
                     </v-btn>
                 </template>
                 <v-card>
                     <v-card-text>
-                        <v-text-field label="Name" v-model="newFolderName" hide-details></v-text-field>
+                        <v-text-field label="文件夹名称" v-model="newFolderName" hide-details></v-text-field>
                     </v-card-text>
                     <v-card-actions>
                         <div class="flex-grow-1"></div>
-                        <v-btn @click="newFolderPopper = false" depressed>Cancel</v-btn>
-                        <v-btn color="success" :disabled="!newFolderName" depressed @click="mkdir">Create Folder</v-btn>
+                        <v-btn @click="newFolderPopper = false" depressed>取消</v-btn>
+                        <v-btn color="success" :disabled="!newFolderName" depressed @click="mkdir">确定</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-menu>
